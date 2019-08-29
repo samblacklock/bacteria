@@ -1,0 +1,10 @@
+{
+  "name": "bacteria",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Sam Blacklock",
+  "license": "MIT",
+  "dependencies": {
+    "csv-parse": "^4.4.5"
+  }
+}
