@@ -1,27 +1,34 @@
 const fs = require("fs");
 const parse = require("csv-parse");
+const prompts = require("prompts");
 
-const Grid = require("./Grid");
+const Cell = require("./Cell");
 
 const parser = parse({
   relax_column_count: true
 });
 
-const plots = [];
+const dataPoints = [];
 
-fs.createReadStream("./test.csv")
-  .pipe(parser)
-  .on("data", row => {
-    // Ignore "end" statement
-    if (row[0] === "end") return;
-    plots.push(row.map(i => parseInt(i)));
-  })
-  .on("end", () => {
-    console.log("CSV file successfully processed");
-
-    const grid = new Grid(plots);
-
-    setTimeout(() => {
-      grid.advance();
-    }, 1000);
+(async () => {
+  const { filename } = await prompts({
+    type: "text",
+    name: "filename",
+    message: "Enter filename:"
   });
+
+  importFile(filename);
+})();
+
+const importFile = filename => {
+  fs.createReadStream(filename)
+    .pipe(parser)
+    .on("data", row => {
+      // Ignore "end" statement
+      if (row[0] === "end") return;
+      dataPoints.push(new Cell(row.toString()));
+    })
+    .on("end", () => {
+      console.log("CSV file successfully processed");
+    });
+};
