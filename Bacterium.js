@@ -1,13 +1,18 @@
 // Class to represent an individual bacterium
 
 class Bacterium {
-  constructor(x, y) {
+  constructor(x, y, status = "alive") {
     this.x = x;
     this.y = y;
+    this._status = status;
   }
 
   get status() {
-    return this.status;
+    return this._status;
+  }
+
+  set status(status) {
+    this._status = status;
   }
 
   get row() {
@@ -16,6 +21,10 @@ class Bacterium {
 
   get column() {
     return this.x;
+  }
+
+  get coords() {
+    return `${this.column},${this.row}`;
   }
 
   get fate() {

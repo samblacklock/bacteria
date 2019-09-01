@@ -20,4 +20,8 @@ fs.createReadStream("./test.csv")
     console.log("CSV file successfully processed");
 
     const grid = new Grid(plots);
+
+    setTimeout(() => {
+      grid.advance();
+    }, 1000);
   });

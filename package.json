@@ -5,6 +5,7 @@
   "author": "Sam Blacklock",
   "license": "MIT",
   "dependencies": {
-    "csv-parse": "^4.4.5"
+    "csv-parse": "^4.4.5",
+    "lodash.pull": "^4.1.0"
   }
 }
