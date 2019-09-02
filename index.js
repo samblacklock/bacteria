@@ -1,6 +1,6 @@
-const { importFile, writeFile, sendPrompt } = require('./utils')
+import { importFile, writeFile, sendPrompt } from './utils'
 
-const Cell = require('./Cell')
+import Cell from './Cell'
 
 const calculateFate = (neighbours, currentlyDead) => {
   const length = neighbours.length

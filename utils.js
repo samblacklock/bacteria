@@ -1,15 +1,15 @@
-const fs = require('fs')
-const parse = require('csv-parse')
-const prompts = require('prompts')
+import { createReadStream, writeFile as _writeFile } from 'fs'
+import parse from 'csv-parse'
+import prompts from 'prompts'
 
 const parser = parse({
   relax_column_count: true
 })
 
-const importFile = filename => fs.createReadStream(filename).pipe(parser)
+const importFile = filename => createReadStream(filename).pipe(parser)
 
 const writeFile = (path, file) =>
-  fs.writeFile(path, file, err => {
+  _writeFile(path, file, err => {
     if (err) console.error(err)
 
     console.log('The file was saved!')
@@ -23,4 +23,4 @@ const sendPrompt = (message, type = 'confirm', name = 'value', rest = []) =>
     ...rest
   })
 
-module.exports = { importFile, writeFile, sendPrompt }
+export { importFile, writeFile, sendPrompt }
