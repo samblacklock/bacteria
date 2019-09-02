@@ -8,25 +8,38 @@ const parser = parse({
 
 // File operations
 
-const importFile = filename => createReadStream(filename).pipe(parser)
+const importFile = filename =>
+  new Promise((resolve, reject) => {
+    const data = []
+    const stream = createReadStream(filename)
+    stream
+      .pipe(parser)
+      .on('data', row => {
+        // Ignore "end" statement
+        if (row[0] === 'end') return
+        data.push(row.toString())
+      })
+      .on('end', () => resolve(data))
+
+    stream.on('error', err => reject(err))
+  })
 
 const writeFile = (path, file) =>
-  _writeFile(path, file, err => {
-    if (err) console.error(err)
-
-    console.log('The file was saved!')
+  new Promise((resolve, reject) => {
+    _writeFile(path, file, err => {
+      if (err) reject(err)
+      resolve(console.log('The file was saved!'))
+    })
   })
 
 const buildFile = arr => {
+  // Format the output file
   const formatted = arr.map(cell => `${cell.coords}\n`)
 
   formatted.sort((a, b) => {
     const parse = val => BigInt(val.replace(',', ''))
 
-    const valA = parse(a)
-    const valB = parse(b)
-
-    if (valA < valB) return -1
+    if (parse(a) < parse(b)) return -1
 
     return 1
   })
@@ -38,12 +51,15 @@ const buildFile = arr => {
 
 // Handle user prompts
 
-const sendPrompt = (message, type = 'confirm', name = 'value', rest = []) =>
+const sendPrompt = (message, type = 'confirm', name = 'value') =>
   prompts({
     message,
     name,
-    type,
-    ...rest
+    type
   })
 
-export { importFile, buildFile, writeFile, sendPrompt }
+// Misc
+
+const unique = data => [...new Set(data)]
+
+export { importFile, buildFile, writeFile, sendPrompt, unique }
