@@ -4,9 +4,11 @@
   "main": "index.js",
   "author": "Sam Blacklock",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "csv-parse": "^4.4.5",
-    "lodash.pull": "^4.1.0",
     "prompts": "^2.2.1"
   }
 }
