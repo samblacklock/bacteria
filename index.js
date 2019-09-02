@@ -1,21 +1,6 @@
-const fs = require('fs')
-const parse = require('csv-parse')
-const prompts = require('prompts')
+const { importFile, writeFile, sendPrompt } = require('./utils')
 
 const Cell = require('./Cell')
-
-const parser = parse({
-  relax_column_count: true
-})
-
-const importFile = filename => fs.createReadStream(filename).pipe(parser)
-const sendPrompt = (message, type = 'confirm', name = 'value', rest = []) =>
-  prompts({
-    message,
-    name,
-    type,
-    ...rest
-  })
 
 const calculateFate = (neighbours, currentlyDead) => {
   const length = neighbours.length
@@ -93,13 +78,7 @@ const wrapUp = async nextGeneration => {
   if (value) {
     const { path } = await sendPrompt('Enter filename', 'text', 'path')
 
-    fs.writeFile(path, file, function(err) {
-      if (err) {
-        return console.error(err)
-      }
-
-      console.log('The file was saved!')
-    })
+    writeFile(path, file)
   }
 }
 

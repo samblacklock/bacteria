@@ -5,16 +5,8 @@ class Cell {
     this.y = parseInt(y)
   }
 
-  get column() {
-    return this.x
-  }
-
-  get row() {
-    return this.y
-  }
-
   get coords() {
-    return `${this.column},${this.row}`
+    return `${this.x},${this.y}`
   }
 
   potentialNeighbours() {
