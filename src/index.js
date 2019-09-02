@@ -1,24 +1,7 @@
 import { importFile, buildFile, writeFile, sendPrompt } from './utils'
-
 import Grid from './lib/Grid'
 
-const wrapUp = async nextGeneration => {
-  const file = buildFile(nextGeneration)
-  const { value } = await sendPrompt(
-    `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
-  )
-
-  if (value) {
-    const { path } = await sendPrompt('Enter filename', 'text', 'path')
-
-    try {
-      writeFile(path, file)
-    } catch {
-      console.error('There was a problem saving the file')
-    }
-  }
-}
-
+// Main entry point
 ;(async () => {
   const { filename } = await sendPrompt(
     'Enter filename of input data',
@@ -34,9 +17,26 @@ const wrapUp = async nextGeneration => {
 
     if (value) {
       const nextGeneration = grid.performGeneration()
-      if (nextGeneration) wrapUp(nextGeneration)
+      if (nextGeneration) complete(nextGeneration)
     }
   } catch ({ path }) {
     console.error(`Could not import '${path}'`)
   }
 })()
+
+const complete = async nextGeneration => {
+  const file = buildFile(nextGeneration)
+  const { value } = await sendPrompt(
+    `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
+  )
+
+  if (value) {
+    const { path } = await sendPrompt('Enter filename', 'text', 'path')
+
+    try {
+      writeFile(path, file)
+    } catch {
+      console.error('There was a problem saving the file')
+    }
+  }
+}
