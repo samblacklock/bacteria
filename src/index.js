@@ -1,7 +1,6 @@
 import { importFile, buildFile, writeFile, sendPrompt } from './utils'
 
-import Grid from './Grid'
-import Cell from './Cell'
+import Grid from './lib/Grid'
 
 const wrapUp = async nextGeneration => {
   const file = buildFile(nextGeneration)
