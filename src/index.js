@@ -1,42 +1,50 @@
-import { importFile, buildFile, writeFile, sendPrompt } from './utils'
+import { createInterface } from 'readline'
+import { formatOutput, sendPrompt } from './utils'
 import Grid from './lib/Grid'
 
-// Main entry point
-;(async () => {
-  const { filename } = await sendPrompt(
-    'Enter filename of input data',
-    'text',
-    'filename'
-  )
+/**
+ * Handle initial user input
+ */
+const getInput = () => {
+  const input = []
 
-  try {
-    const data = await importFile(filename)
-    const grid = new Grid(data)
+  const rl = createInterface({
+    input: process.stdin
+  })
 
-    const { value } = await sendPrompt('CSV imported. Perform one generation?')
+  rl.on('line', line => {
+    input.push(line)
+    if (line === 'end') rl.close()
+  })
 
-    if (value) {
-      const nextGeneration = grid.performGeneration()
-      if (nextGeneration) complete(nextGeneration)
-    }
-  } catch ({ path }) {
-    console.error(`Could not import '${path}'`)
-  }
-})()
+  rl.on('close', () => {
+    processInput(input)
+  })
+}
 
-const complete = async nextGeneration => {
-  const file = buildFile(nextGeneration)
-  const { value } = await sendPrompt(
-    `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
-  )
+/**
+ * Perform transform on inputted values
+ * @param {string[]} input - provided input
+ */
+const processInput = async input => {
+  const grid = new Grid(input)
+  const nextGeneration = grid.performGeneration()
+  const file = formatOutput(nextGeneration)
 
-  if (value) {
-    const { path } = await sendPrompt('Enter filename', 'text', 'path')
+  process.stdout.write(`\n${file}\n`)
 
-    try {
-      writeFile(path, file)
-    } catch {
-      console.error('There was a problem saving the file')
-    }
+  const { repeat } = await sendPrompt('Repeat?', 'confirm', 'repeat')
+
+  if (repeat) {
+    processInput(nextGeneration.map(el => el.coords))
+  } else {
+    process.exit(0)
   }
 }
+
+/**
+ * Main entry point to program - handle file import and generation
+ */
+;(async () => {
+  getInput()
+})()

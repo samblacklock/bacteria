@@ -1,3 +1,7 @@
+/**
+ * Class to represent an individual cell or bacterium
+ */
+
 class Cell {
   constructor(coords) {
     const [x, y] = coords.split(',')
@@ -5,10 +9,18 @@ class Cell {
     this.y = parseInt(y)
   }
 
+  /**
+   * Return the coordinates of this cell
+   * @return {string}
+   */
   get coords() {
     return `${this.x},${this.y}`
   }
 
+  /**
+   * Return all the potential neighbours of this cell
+   * @return {string[]}
+   */
   potentialNeighbours() {
     const { x, y } = this
 
