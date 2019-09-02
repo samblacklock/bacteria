@@ -4,8 +4,16 @@
   "main": "index.js",
   "author": "Sam Blacklock",
   "license": "MIT",
+  "scripts": {
+    "start": "babel-node index.js"
+  },
   "dependencies": {
     "csv-parse": "^4.4.5",
-    "lodash.pull": "^4.1.0"
+    "prompts": "^2.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5"
   }
 }

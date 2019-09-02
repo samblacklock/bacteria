@@ -1,27 +1,43 @@
-const fs = require("fs");
-const parse = require("csv-parse");
+import { importFile, buildFile, writeFile, sendPrompt } from './utils'
 
-const Grid = require("./Grid");
+import Grid from './Grid'
+import Cell from './Cell'
 
-const parser = parse({
-  relax_column_count: true
-});
+const wrapUp = async nextGeneration => {
+  const file = buildFile(nextGeneration)
+  const { value } = await sendPrompt(
+    `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
+  )
 
-const plots = [];
+  if (value) {
+    const { path } = await sendPrompt('Enter filename', 'text', 'path')
 
-fs.createReadStream("./test.csv")
-  .pipe(parser)
-  .on("data", row => {
-    // Ignore "end" statement
-    if (row[0] === "end") return;
-    plots.push(row.map(i => parseInt(i)));
-  })
-  .on("end", () => {
-    console.log("CSV file successfully processed");
+    try {
+      writeFile(path, file)
+    } catch {
+      console.error('There was a problem saving the file')
+    }
+  }
+}
 
-    const grid = new Grid(plots);
+;(async () => {
+  const { filename } = await sendPrompt(
+    'Enter filename of input data',
+    'text',
+    'filename'
+  )
 
-    setTimeout(() => {
-      grid.advance();
-    }, 1000);
-  });
+  try {
+    const data = await importFile(filename)
+    const grid = new Grid(data)
+
+    const { value } = await sendPrompt('CSV imported. Perform one generation?')
+
+    if (value) {
+      const nextGeneration = grid.performGeneration()
+      if (nextGeneration) wrapUp(nextGeneration)
+    }
+  } catch ({ path }) {
+    console.error(`Could not import '${path}'`)
+  }
+})()

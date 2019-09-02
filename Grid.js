@@ -1,83 +1,66 @@
-const pull = require("lodash.pull");
+import Cell from './Cell'
+import { unique } from './utils'
 
-const Bacterium = require("./Bacterium");
+const applyRules = (neighbours, currentlyDead) => {
+  // Apply live/die rules
+  const length = neighbours.length
 
-const calculateNeighbours = (bacterium, plots) => {
-  // remove current bacterium from the selection
-  const filteredPlots = plots
-    .map(el => el.toString())
-    .filter(el => el !== bacterium.coords);
-  const potentialNeighbours = bacterium.getPotentialNeighbours(plots);
-
-  // find potential neighbours that actually exist
-  const actualNeighbours = potentialNeighbours.filter(el =>
-    filteredPlots.includes(el)
-  );
-
-  return { bacterium, actualNeighbours };
-};
-
-const calculateFate = ({ bacterium, actualNeighbours }) => {
-  const count = actualNeighbours.length;
-
-  if (count < 2 || count > 3) {
-    return "death";
+  if (currentlyDead) {
+    if (length === 3) return true
+    return false
   }
 
-  if (
-    (count >= 2 && count <= 3) ||
-    (bacterium.status === "dead" && count === 3)
-  ) {
-    return "life";
-  }
-};
+  if (length < 2 || length > 3) return false
+  if (length === 2 || length === 3) return true
+}
 
-class Grid extends Array {
-  constructor(plots) {
-    super();
-    this.buildGrid(plots);
+class Grid {
+  constructor(data) {
+    this.data = data.map(cell => new Cell(cell))
   }
 
-  buildGrid(plots) {
-    plots.forEach(([x, y]) => {
-      const bacterium = new Bacterium(x, y);
-      bacterium.fate = calculateFate(calculateNeighbours(bacterium, plots));
-      this.push(bacterium);
-    });
-
-    console.log(this);
+  get values() {
+    // Return an array of the coordinates of all bacteria currently on the grid, as strings
+    return this.data.map(el => el.coords)
   }
 
-  // perform/advance one 'generation'
-  advance() {
-    // Step 1 is to 'grow' anything new
-    const neighbours = [];
+  // Helper func to iterate over dataset and determine fate of a cell
+  calculateCellFate(dataSet, currentlyDead) {
+    dataSet.forEach(cell => {
+      // Calculate neighbouring cells to each cell and applies appropriate rules
+      const actualNeighbours = cell
+        .potentialNeighbours()
+        .filter(el => this.values.includes(el))
 
-    this.forEach(bacterium => {
-      neighbours.push(...bacterium.getPotentialNeighbours());
-    });
+      const lives = applyRules(actualNeighbours, currentlyDead)
 
-    this.forEach(bacterium => {
-      pull(neighbours, bacterium.coords);
-    });
+      if (lives) this.nextGeneration.push(cell)
+    })
+  }
 
-    const potentials = Array.from(new Set(neighbours)).map(
-      ([x, _, y]) => new Bacterium(x, y, null)
-    );
+  performGeneration() {
+    // Start with empty array to represent the next generation
+    this.nextGeneration = []
 
-    potentials.forEach(p => {
-      console.log(p.coords, calculateNeighbours(p, p.getPotentialNeighbours()));
-    });
+    // Decide which cells live on:
+    // Get the actual neighbours of all current bacteria and decide their fate
+    this.calculateCellFate(this.data)
 
-    console.log(potentials);
+    // Decide which cells come to life:
+    // Build an array of all cells that could potentially come live (and dedupe)
+    const allPotentialNeighbours = unique(
+      this.data
+        .map(cell => {
+          return cell.potentialNeighbours()
+        })
+        .flat()
+    ).map(el => new Cell(el))
 
-    // Step 2 is to 'kill' bacterium with a fate of 'death'
-    // this.forEach(bacterium => {
-    //   if (bacterium.fate === "death") bacterium.status = "dead";
-    // });
+    // Apply rules to all potential cells to determine fate
+    this.calculateCellFate(allPotentialNeighbours, true)
 
-    // console.log(this);
+    return this.nextGeneration
   }
 }
 
-module.exports = Grid;
+export default Grid
