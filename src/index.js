@@ -1,7 +1,9 @@
 import { importFile, buildFile, writeFile, sendPrompt } from './utils'
 import Grid from './lib/Grid'
 
-// Main entry point
+/**
+ * Main entry point to program - handle file import and generation
+ */
 ;(async () => {
   const { filename } = await sendPrompt(
     'Enter filename of input data',
@@ -24,19 +26,37 @@ import Grid from './lib/Grid'
   }
 })()
 
+/**
+ * Handle outputting new generation as .csv. Write to stdout and optionally to file
+ * @param {Cell[]} nextGeneration - the next generation
+ */
 const complete = async nextGeneration => {
   const file = buildFile(nextGeneration)
-  const { value } = await sendPrompt(
-    `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
+
+  process.stdout.write(file)
+
+  const { rerun } = await sendPrompt(
+    `Rerun with this dataset?`,
+    'confirm',
+    'rerun'
   )
 
-  if (value) {
-    const { path } = await sendPrompt('Enter filename', 'text', 'path')
+  if (rerun) {
+  } else {
+    const { write } = await sendPrompt(
+      `Write output to a file?`,
+      'confirm',
+      'write'
+    )
 
-    try {
-      writeFile(path, file)
-    } catch {
-      console.error('There was a problem saving the file')
+    if (write) {
+      const { path } = await sendPrompt('Enter filename', 'text', 'path')
+
+      try {
+        writeFile(path, file)
+      } catch {
+        console.error('There was a problem saving the file')
+      }
     }
   }
 }
