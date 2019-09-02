@@ -1,5 +1,5 @@
 import Cell from './Cell'
-import { unique } from './utils'
+import { unique } from '../utils'
 
 const applyRules = (neighbours, currentlyDead) => {
   // Apply live/die rules

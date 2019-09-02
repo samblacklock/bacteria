@@ -5,7 +5,7 @@
   "author": "Sam Blacklock",
   "license": "MIT",
   "scripts": {
-    "start": "babel-node index.js"
+    "start": "babel-node ./src/index.js"
   },
   "dependencies": {
     "csv-parse": "^4.4.5",
