@@ -1,8 +1,9 @@
-import { importFile, writeFile, sendPrompt } from './utils'
+import { importFile, buildFile, writeFile, sendPrompt } from './utils'
 
 import Cell from './Cell'
 
-const calculateFate = (neighbours, currentlyDead) => {
+const applyRules = (neighbours, currentlyDead) => {
+  // Apply live/die rules
   const length = neighbours.length
 
   if (currentlyDead) {
@@ -15,62 +16,46 @@ const calculateFate = (neighbours, currentlyDead) => {
 }
 
 const performGeneration = grid => {
+  // Start with empty array to represent the next generation
   const nextGeneration = []
-
-  // First, decide which cells live on
+  // Get an array of the coordinates of all bacteria currently on the grid
   const fullGrid = grid.map(el => el.coords)
 
-  grid.forEach(cell => {
-    const actualNeighbours = cell
-      .potentialNeighbours()
-      .filter(el => fullGrid.includes(el))
+  // Helper func to iterate over dataset and determine fate of a cell
+  const calculateFate = (dataSet, currentlyDead) =>
+    dataSet.forEach(cell => {
+      // Calculate neighbouring cells to each cell and applies appropriate rules
+      const actualNeighbours = cell
+        .potentialNeighbours()
+        .filter(el => fullGrid.includes(el))
 
-    const lives = calculateFate(actualNeighbours)
+      const lives = applyRules(actualNeighbours, currentlyDead)
 
-    if (lives) nextGeneration.push(cell)
-  })
+      if (lives) nextGeneration.push(cell)
+    })
+
+  // First, decide which cells live on
+  // Get the actual neighbours of all current bacteria and decide their fate
+  calculateFate(grid)
 
   // Next, decide which cells come to life
-  const allPotentialNeighbors = [].concat(
-    ...grid.map(cell => cell.potentialNeighbours())
-  )
-  const allUniquePotentialNeighbours = [...new Set(allPotentialNeighbors)].map(
+  // Build an array of all cells that could potentially come live and dedupe
+  const allPotentialNeighbours = []
+  grid.forEach(cell => {
+    allPotentialNeighbours.push(...cell.potentialNeighbours())
+  })
+  const allUniquePotentialNeighbours = [...new Set(allPotentialNeighbours)].map(
     el => new Cell(el)
   )
 
-  allUniquePotentialNeighbours.forEach(cell => {
-    const actualNeighbours = cell
-      .potentialNeighbours()
-      .filter(el => fullGrid.includes(el))
-
-    const lives = calculateFate(actualNeighbours, true)
-
-    if (lives) nextGeneration.push(cell)
-  })
+  // Apply rules to all potential cells to determine fate
+  calculateFate(allUniquePotentialNeighbours, true)
 
   return nextGeneration
 }
 
-const formatString = arr => {
-  const formatted = arr.map(cell => `${cell.coords}\n`)
-
-  formatted.sort((a, b) => {
-    const parse = val => BigInt(val.replace(',', ''))
-
-    const valA = parse(a)
-    const valB = parse(b)
-
-    if (valA < valB) return -1
-
-    return 1
-  })
-  formatted.push('end')
-
-  return formatted.join('')
-}
-
 const wrapUp = async nextGeneration => {
-  const file = formatString(nextGeneration)
+  const file = buildFile(nextGeneration)
   const { value } = await sendPrompt(
     `Complete! The output is:\n\n${file}\n\nWrite this to a file?`
   )
