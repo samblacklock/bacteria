@@ -41,8 +41,8 @@ class Grid {
   /**
    * Helper func to iterate over dataset and determine fate of a cell.
    * Calculates neighbouring cells to each cell and applies appropriate rules
-   * @param {*} dataSet
-   * @param {*} currentlyDead   *
+   * @param {Cell[]} dataSet - array of cells to iterate over
+   * @param {boolean} currentlyDead - is the cell not currently alive
    */
   calculateCellFate(dataSet, currentlyDead) {
     dataSet.forEach(cell => {
