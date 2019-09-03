@@ -5,12 +5,14 @@ import prompts from 'prompts'
  * @param {Cell[]} arr - array of cells
  */
 const formatOutput = arr => {
-  const formatted = arr.map(cell => `${cell.coords}\n`)
+  const parseBigInt = val => BigInt(val.replace(',', ''))
+
+  const formatted = arr
+    .map(cell => `${cell.coords}\n`)
+    .filter(cell => parseBigInt(cell) > 0)
 
   formatted.sort((a, b) => {
-    const parse = val => BigInt(val.replace(',', ''))
-
-    if (parse(a) < parse(b)) return -1
+    if (parseBigInt(a) < parseBigInt(b)) return -1
 
     return 1
   })

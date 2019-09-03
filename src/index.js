@@ -45,6 +45,5 @@ const processInput = async input => {
 /**
  * Main entry point to program - handle file import and generation
  */
-;(async () => {
-  getInput()
-})()
+
+getInput()
