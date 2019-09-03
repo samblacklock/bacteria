@@ -1,5 +1,5 @@
 import { createInterface } from 'readline'
-import { formatOutput, sendPrompt } from './utils'
+import { formatOutput, sendPrompt, unique } from './utils'
 import Grid from './lib/Grid'
 
 /**
@@ -27,7 +27,7 @@ const getInput = () => {
  * @param {string[]} input - provided input
  */
 const processInput = async input => {
-  const grid = new Grid(input)
+  const grid = new Grid(unique(input))
   const nextGeneration = grid.performGeneration()
   const file = formatOutput(nextGeneration)
 

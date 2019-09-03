@@ -17,7 +17,7 @@ const formatOutput = arr => {
 
   formatted.push('end')
 
-  return formatted.join('')
+  return unique(formatted).join('')
 }
 
 /**
