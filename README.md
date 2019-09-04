@@ -6,7 +6,7 @@ Docs: https://samblacklock.github.io/bacteria/
 - `yarn install`
 - `yarn start`
 
-Paste input, e.g.
+Paste or type input (one coordinate per line), e.g.
 
 ```
 1,2
